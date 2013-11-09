@@ -2,12 +2,6 @@
 
 require 'support/active_record/face'
 
-# A class upon which we can base our query object.
-# See ActiveRecord::Face for explanation on usage.
-#
-class User < ActiveRecord::Face
-end
-
 RSpec.configure do |config|
   config.before(:each) do |example|
 

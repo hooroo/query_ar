@@ -2,6 +2,12 @@ require 'spec_helper'
 require 'query_ar'
 require 'pry'
 
+# A class upon which we can base our query object.
+# See ActiveRecord::Face for explanation on usage.
+#
+class User < ActiveRecord::Face
+end
+
 describe QueryAr do
 
   describe "Dsl" do
