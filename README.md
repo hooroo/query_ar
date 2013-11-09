@@ -2,7 +2,57 @@
 
 Gives you a DSL to build filtered, scoped, paged and sorted ActiveRecord queries, based on a parameters hash
 
-###A real-world example
+### Really quick usage example
+
+Given this ActiveRecord model:
+
+```ruby
+class User
+  scope :older_than, ->(years) { where("age > ?", years) }
+end
+```
+
+You can declare a query:
+
+```ruby
+class UserQuery
+  include QueryAr
+
+  defaults sort_by: 'last_name'
+
+  queryable_by  :first_name, :last_name
+  scopeable_by  :older_than
+end
+```
+
+Then use it to query your model safely and succinctly from controller params:
+
+```ruby
+
+# GET /users
+# params = { "older_than"=>30, "first_name"=>"Stu", "limit"=>5, "offset"=>0 }
+
+def index
+  query = UserQuery.new(params)
+  render json: query.all
+end
+```
+
+## I've seen enough, how do I install it?
+
+Add this line to your application's Gemfile:
+
+    gem 'query_ar'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install query_ar
+
+### Need more info? A real-world example
 
 We have a Place (ActiveRecord) model with attributes and scopes to filter on, so we have all of the power of the AR query DSL at our fingertips.
 
@@ -42,13 +92,13 @@ Place.in_group('see_do')
   .offset(0)
 ```
 
-###Useage
+### Define a query
 
 Continuing our example, here's what the PlaceQuery would look like:
 
 ```ruby
 class PlaceQuery
-  include ActiveRecordQuery
+  include QueryAr
 
   defaults sort_by: 'name', sort_dir: 'ASC',
     limit: 10, offset: 0
@@ -98,20 +148,6 @@ The summary is designed to be placed into the JSON response as a meta key, altho
 If you have any comments or questions, please feel free to get in touch.
 
 Of course, Pull Requests are very welcome. If you have any doubts about the appropriateness of a particular feature you want to add, please don't hesitate to create a GitHub issue and we can discuss.
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'query_ar'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install query_ar
 
 ## Contributing
 
