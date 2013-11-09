@@ -1,4 +1,6 @@
 require "query_ar/version"
+require 'query_ar/scoped_relation'
+require 'active_support/core_ext'
 
 module QueryAr
 

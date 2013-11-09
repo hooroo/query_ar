@@ -11,6 +11,10 @@ class FakeActiveRecordModel
     self
   end
 
+  # TODO: Make this syntax like AR scopes...
+  #
+  # scope :older_than, ->(years) { where("age > ?", years) }
+  #
   def self.in_group(group)
     self.applied_scopes.merge!(in_group: group)
     self

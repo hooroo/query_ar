@@ -151,6 +151,11 @@ If you have any comments or questions, please feel free to get in touch.
 
 Of course, Pull Requests are very welcome. If you have any doubts about the appropriateness of a particular feature you want to add, please don't hesitate to create a GitHub issue and we can discuss.
 
+## TODO:
+
+* Write up documentation for eagerloading with .includes.
+* Right now we get errors when we don't .include any relations
+
 ## Contributing
 
 1. Fork it
