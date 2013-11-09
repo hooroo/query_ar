@@ -1,5 +1,7 @@
 # QueryAr
 
+> Best pronounced like a pirate: QueryARRR!
+
 Gives you a DSL to build filtered, scoped, paged and sorted ActiveRecord queries, based on a parameters hash
 
 ### Really quick usage example
