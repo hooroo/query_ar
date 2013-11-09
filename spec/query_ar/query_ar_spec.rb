@@ -28,7 +28,7 @@ describe QueryAr do
         end
       RUBY
 
-      context "when no defaults are provided", query_class: no_defaults do
+      context "when NO defaults are provided", query_class: no_defaults do
 
         it "uses the global defaults" do
           UserQuery.new.all
@@ -79,7 +79,7 @@ describe QueryAr do
 
       let(:query_params) { {name: 'Stu'} }
 
-      context "when no attributes have been declared", query_class: no_queryable_attrs do
+      context "when NO attributes have been declared", query_class: no_queryable_attrs do
 
         it "does not query on anything" do
           UserQuery.new(query_params).all
@@ -98,8 +98,12 @@ describe QueryAr do
 
     describe ".scopeable_by" do
 
-      context "when no scopes have been declared" do
+      context "when NO scopes have been declared" do
+        it "will not query on any scopes"
+      end
 
+      context "when scopes have been declared" do
+        it "will query on matching scopes"
       end
     end
 
