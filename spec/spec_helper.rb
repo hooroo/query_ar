@@ -3,11 +3,9 @@
 require 'support/active_record/bass'
 
 # A class upon which we can base our query object.
-# Inheriting from ActiveRecord::Bass allows it to
-# swallow chainable class methods and keep a track of
-# what messages it receieved and with what args.
+# See ActiveRecord::Face for explanation on usage.
 #
-class User < ActiveRecord::Bass
+class User < ActiveRecord::Face
 end
 
 RSpec.configure do |config|

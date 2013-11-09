@@ -6,7 +6,7 @@ require 'active_support/core_ext'
 
 # Declare a class that inherits us instead of AR::Base
 #
-#   class User < ActiveRecord::Bass
+#   class User < ActiveRecord::Face
 #   end
 
 # Chain a bunch of query methods together:
@@ -19,7 +19,7 @@ require 'active_support/core_ext'
 #   => {:active=>[], :where=>[{:name=>"stu"}], :order=>["name"], :limit=>[10], :offset=>[0]}
 
 module ActiveRecord
-  class Bass
+  class Face
 
     class_attribute :messages_received
 
