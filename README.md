@@ -38,7 +38,7 @@ def index
 end
 ```
 
-## I've seen enough, how do I install it?
+### I've seen enough, how do I install it?
 
 Add this line to your application's Gemfile:
 
