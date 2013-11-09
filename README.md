@@ -137,10 +137,10 @@ query.total
 
 query.summary
 #=> {
-      offset: 0, limit: 10,
-      sort_by: 'name', sort_dir: 'ASC',
-      count: 10, total: 13
-    }
+#     offset: 0, limit: 10,
+#     sort_by: 'name', sort_dir: 'ASC',
+#     count: 10, total: 13
+#   }
 ```
 
 The summary is designed to be placed into the JSON response as a meta key, although the details of serialising the response into JSON is intentionally left out of this gem.
