@@ -5,13 +5,9 @@ require 'support/active_record/face'
 RSpec.configure do |config|
   config.before(:each) do |example|
 
-    # Keep an eye on this. We want to make sure that our assertions about
-    # messages receieved aren't skewed by a previous spec
-    # User.messages_received = {}
-
     # Allow a class definition for the UserQuery to be passed into the
     # example group.
-    if definition = example.class.metadata[:query_class_definition]
+    if definition = example.class.metadata[:query_class]
       create_query_class(definition)
     end
   end

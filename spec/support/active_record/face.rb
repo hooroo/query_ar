@@ -9,11 +9,11 @@ require 'active_support/core_ext'
 #   class User < ActiveRecord::Face
 #   end
 
-# Chain a bunch of query methods together:
+# Chain a bunch of query methods together
 #
 #   > User.active.where(name: 'stu').order('name').limit(10).offset(0)
 
-# Query what messages where received and with what args, for assertions
+# Find out what messages where received and with what args, useful for assertions
 #
 #   > User.messages_received
 #   => {:active=>[], :where=>[{:name=>"stu"}], :order=>["name"], :limit=>[10], :offset=>[0]}
