@@ -42,17 +42,8 @@ end
 
 ### I've seen enough, how do I install it?
 
-Add this line to your application's Gemfile:
-
-    gem 'query_ar'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install query_ar
+I'm going to release to rubygems shortly, once I'm certain the interface won't change too much. Right now you
+can add to your Gemfile and reference github if you're a brave soul.
 
 ### Need more info? A real-world example
 
