@@ -67,7 +67,7 @@ class Place < ActiveRecord::Base
 end
 ```
 
-We want to provide an API with, amongst other things, an index action for querying lists of places.
+We want to provide a REST API with, amongst other things, an index action for querying lists of places.
 
 The [Hooroo Places](http://places.hooroo.com) API might accept this request for GET-ing the first 10 "See & Do" places near Mamasita with "Museum" in the name, ordered by name:
 
@@ -75,7 +75,7 @@ The [Hooroo Places](http://places.hooroo.com) API might accept this request for 
 "/api/places?in_group=see_do&nearby_place_id=mamasita&name=museum&sort_by=name&limit=10&offset=0"
 ```
 
-When our app receives this request, it parses it as a params hash like this:
+When our Rails app receives this request it parses the query string as a params hash, like this:
 
 ```
 {"in_group"=>"see_do", "nearby_place_id"=>"mamasita", "name"=>"museum", "sort_by"=>"name", "limit"=>10, "offset"=>0}
@@ -123,7 +123,7 @@ def index
 end
 ```
 
-The public API of every query object is as follows:
+The public interface of every query object is as follows:
 
 ```ruby
 query.all
