@@ -87,7 +87,7 @@ This gem provides a standard, declarative way to get from the above params hash,
 Place.in_group('see_do')
   .nearby_place_id('mamasita')
   .where(name: 'museum')
-  .order(:name)
+  .order('name')
   .limit(10)
   .offset(0)
 ```
