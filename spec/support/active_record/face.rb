@@ -1,8 +1,8 @@
 require 'active_support/core_ext'
 
-# To avoind having ActiveRecord as a development dependency of
-# this gem (whose sole purpose is to chain AR queries), we use
-# this class in tests. Usage is as follows.
+# To avoid having ActiveRecord as a development dependency of
+# this gem (whose sole purpose is to chain AR queries - YOLO),
+# we use this class in tests. Usage is as follows.
 
 # Declare a class that inherits us instead of AR::Base
 #
