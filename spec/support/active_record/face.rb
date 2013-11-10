@@ -24,17 +24,17 @@ module ActiveRecord
 
     class_attribute :messages_received, :expected_messages
 
-    self.expected_messages = [
+    self.expected_messages = Set.new([
       :all,
       :where,
       :order,
       :limit,
       :offset,
       :includes
-    ]
+    ])
 
     def self.scope(name)
-      self.expected_messages.push name.to_sym
+      self.expected_messages << name.to_sym
     end
 
     def self.method_missing(method, *args, &block)
