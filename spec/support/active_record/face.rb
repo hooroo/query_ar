@@ -5,6 +5,7 @@
 # Declare a class that inherits us instead of AR::Base
 #
 #   class User < ActiveRecord::Face
+#     scope :active
 #   end
 
 # Chain a bunch of query methods together
