@@ -34,7 +34,6 @@ module ActiveRecord
     ]
 
     def self.scope(name)
-      self.expected_messages ||= Set.new(expected_messages)
       self.expected_messages.push name.to_sym
     end
 
