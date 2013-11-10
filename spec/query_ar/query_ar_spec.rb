@@ -5,6 +5,8 @@ require 'query_ar'
 # See ActiveRecord::Face for explanation on usage.
 #
 class User < ActiveRecord::Face
+  scope :younger_than
+  scope :older_than
 end
 
 describe QueryAr do
