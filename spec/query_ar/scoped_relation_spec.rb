@@ -5,6 +5,8 @@ require 'query_ar/scoped_relation'
 # See ActiveRecord::Face for explanation on usage.
 #
 class User < ActiveRecord::Face
+  scope :older_than
+  scope :younger_than
 end
 
 describe ScopedRelation do

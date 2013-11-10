@@ -1,5 +1,3 @@
-require 'active_support/core_ext'
-
 # To avoid having ActiveRecord as a development dependency of
 # this gem (whose sole purpose is to chain AR queries - YOLO),
 # we use this class in tests. Usage is as follows.
@@ -18,16 +16,34 @@ require 'active_support/core_ext'
 #   > User.messages_received
 #   => {:active=>[], :where=>[{:name=>"stu"}], :order=>["name"], :limit=>[10], :offset=>[0]}
 
+require 'active_support/core_ext'
+
 module ActiveRecord
   class Face
 
-    class_attribute :messages_received
+    class_attribute :messages_received, :expected_messages
+
+    def self.scope(name, &block)
+      self.expected_messages ||= Set.new(expected_messages)
+      self.expected_messages.push *name
+    end
 
     def self.method_missing(method, *args, &block)
+      super unless self.expected_messages.include?(method)
+
       self.messages_received ||= {}
       self.messages_received.merge!(method => args)
       self
     end
+
+    self.expected_messages = [
+      :all,
+      :where,
+      :order,
+      :limit,
+      :offset,
+      :includes
+    ]
 
   end
 end
