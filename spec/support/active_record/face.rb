@@ -24,9 +24,18 @@ module ActiveRecord
 
     class_attribute :messages_received, :expected_messages
 
-    def self.scope(name, &block)
+    self.expected_messages = [
+      :all,
+      :where,
+      :order,
+      :limit,
+      :offset,
+      :includes
+    ]
+
+    def self.scope(name)
       self.expected_messages ||= Set.new(expected_messages)
-      self.expected_messages.push *name
+      self.expected_messages.push name.to_sym
     end
 
     def self.method_missing(method, *args, &block)
@@ -36,15 +45,6 @@ module ActiveRecord
       self.messages_received.merge!(method => args)
       self
     end
-
-    self.expected_messages = [
-      :all,
-      :where,
-      :order,
-      :limit,
-      :offset,
-      :includes
-    ]
 
   end
 end
