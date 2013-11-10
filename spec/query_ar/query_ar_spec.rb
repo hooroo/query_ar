@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'query_ar'
-require 'pry'
 
 # A class upon which we can base our query object.
 # See ActiveRecord::Face for explanation on usage.
@@ -63,11 +62,21 @@ describe QueryAr do
 
     describe ".queryable_by" do
 
+      let(:query_params) { {name: 'Stu', role: 'admin'} }
+
       no_queryable_attrs = <<-RUBY
         class UserQuery
           include QueryAr
         end
       RUBY
+
+      context "when NO queryable attributes have been declared", query_class: no_queryable_attrs do
+
+        it "does not query on anything" do
+          UserQuery.new(query_params).all
+          expect(User.messages_received).to include(where: [{}])
+        end
+      end
 
       queryable_by_name = <<-RUBY
         class UserQuery
@@ -77,33 +86,49 @@ describe QueryAr do
         end
       RUBY
 
-      let(:query_params) { {name: 'Stu'} }
+      context "when queryable attributes have been declared", query_class: queryable_by_name do
 
-      context "when NO attributes have been declared", query_class: no_queryable_attrs do
-
-        it "does not query on anything" do
+        it "queries on the allowed attribute only" do
           UserQuery.new(query_params).all
-          expect(User.messages_received).to include(where:  [{}])
-        end
-      end
-
-      context "when attributes have been declared", query_class: queryable_by_name do
-
-        it "does not query on anything" do
-          UserQuery.new(query_params).all
-          expect(User.messages_received).to include(where:  [{name: 'Stu'}])
+          expect(User.messages_received).to include(where: [{name: 'Stu'}])
+          expect(User.messages_received).to_not include(where: [{role: 'admin'}])
         end
       end
     end
 
     describe ".scopeable_by" do
 
-      context "when NO scopes have been declared" do
-        it "will not query on any scopes"
+      let(:query_params) { {older_than: 30, younger_than: 50} }
+
+      no_scopes = <<-RUBY
+        class UserQuery
+          include QueryAr
+        end
+      RUBY
+
+      context "when NO scopes have been declared", query_class: no_scopes do
+
+        it "will not query on any scopes" do
+          UserQuery.new(query_params).all
+          expect(User.messages_received.keys).to_not include(:older_than)
+          expect(User.messages_received.keys).to_not include(:younger_than)
+        end
       end
 
-      context "when scopes have been declared" do
-        it "will query on matching scopes"
+      with_scopes = <<-RUBY
+        class UserQuery
+          include QueryAr
+
+          scopeable_by :older_than
+        end
+      RUBY
+
+      context "when scopes have been declared", query_class: with_scopes do
+        it "will query on matching scopes" do
+          UserQuery.new(query_params).all
+          expect(User.messages_received).to include(older_than: [30])
+          expect(User.messages_received.keys).to_not include(:younger_than)
+        end
       end
     end
 
