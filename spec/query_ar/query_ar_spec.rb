@@ -59,7 +59,6 @@ describe QueryAr do
           end
         end
       end
-
     end
 
     describe ".queryable_by" do
@@ -132,6 +131,11 @@ describe QueryAr do
           expect(User.messages_received.keys).to_not include(:younger_than)
         end
       end
+    end
+
+    describe ".include" do
+
+      it "needs discussed"
     end
 
   end
