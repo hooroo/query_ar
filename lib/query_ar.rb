@@ -36,6 +36,10 @@ module QueryAr
       .offset(offset)
   end
 
+  def find(id_param = :id)
+    with_includes(model_class).find(params[id_param])
+  end
+
   def summary
     {
       offset: offset,
@@ -96,15 +100,6 @@ module QueryAr
     end
 
     alias_method :scopeable_by, :scopable_by
-
-    def find_by(params)
-      self.new(params)
-    end
-
-    def find(params, id_param = :id)
-      query = self.new(params)
-      query.send(:with_includes, query.send(:model_class)).find(params[id_param])
-    end
 
   end
 

@@ -52,7 +52,7 @@ describe QueryAr do
           let(:query_params) { {limit: 10, offset: 20} }
 
           it "uses those ones where available" do
-            UserQuery.find_by(query_params).all
+            UserQuery.new(query_params).all
             expect(User.messages_received).to include(limit:  [10])
             expect(User.messages_received).to include(offset: [20])
             expect(User.messages_received).to include(order:  ['name DESC'])
@@ -74,7 +74,7 @@ describe QueryAr do
       context "when NO queryable attributes have been declared", query_class: no_queryable_attrs do
 
         it "does not query on anything" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received).to include(where: [{}])
         end
       end
@@ -90,7 +90,7 @@ describe QueryAr do
       context "when queryable attributes have been declared", query_class: queryable_by_name do
 
         it "queries on the allowed attribute only" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received).to include(where: [{name: 'Stu'}])
           expect(User.messages_received).to_not include(where: [{role: 'admin'}])
         end
@@ -110,7 +110,7 @@ describe QueryAr do
       context "when NO scopes have been declared", query_class: no_scopes do
 
         it "will not query on any scopes" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received.keys).to_not include(:older_than)
           expect(User.messages_received.keys).to_not include(:younger_than)
         end
@@ -126,7 +126,7 @@ describe QueryAr do
 
       context "when scopes have been declared", query_class: with_scopes do
         it "will query on matching scopes" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received).to include(older_than: [30])
           expect(User.messages_received.keys).to_not include(:younger_than)
         end
@@ -146,7 +146,7 @@ describe QueryAr do
       context "when NO includables have been declared", query_class: no_includes do
 
         xit "does not include any relations" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received.keys).to_not include(:includes)
         end
       end
@@ -162,7 +162,7 @@ describe QueryAr do
       context "when includables have been declared", query_class: with_includes do
 
         xit "includes only the includable relations" do
-          UserQuery.find_by(query_params).all
+          UserQuery.new(query_params).all
           expect(User.messages_received).to include(includes: [:images])
         end
       end
@@ -183,7 +183,7 @@ describe QueryAr do
       let(:params) { { id: 1 } }
 
       it "finds by id from params" do
-        UserQuery.find(params)
+        UserQuery.new(params).find
         expect(User.messages_received).to include(find: [1])
       end
 
@@ -194,13 +194,12 @@ describe QueryAr do
       let(:params) { { id: 1, include: 'images' } }
 
       it "finds by id from params" do
-        UserQuery.find(params)
+        UserQuery.new(params).find
         expect(User.messages_received).to include(find: [1])
         expect(User.messages_received).to include(includes: [:images])
       end
 
     end
-
 
   end
 
