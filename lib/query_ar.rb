@@ -29,7 +29,7 @@ module QueryAr
   end
 
   def all
-    scoped_relation_with_includes
+    with_includes(scoped_relation)
       .where(query)
       .order(order)
       .limit(limit)
@@ -94,7 +94,17 @@ module QueryAr
     def scopable_by(*keys)
       self._valid_scope_keys = Set.new(keys.map(&:to_sym))
     end
+
     alias_method :scopeable_by, :scopable_by
+
+    def find_by(params)
+      self.new(params)
+    end
+
+    def find(params, id_param = :id)
+      query = self.new(params)
+      query.send(:with_includes, query.send(:model_class)).find(params[id_param])
+    end
 
   end
 
@@ -134,12 +144,12 @@ module QueryAr
     ScopedRelation.new(model_class, scopes).scoped
   end
 
-  def scoped_relation_with_includes
+  def with_includes(relation)
 
     if includes.present?
-      scoped_relation.includes(*includes)
+      relation.includes(*includes)
     else
-      scoped_relation
+      relation
     end
 
   end

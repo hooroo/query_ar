@@ -30,7 +30,9 @@ module ActiveRecord
       :order,
       :limit,
       :offset,
-      :includes
+      :includes,
+      :find,
+      :find_by
     ])
 
     def self.scope(name)
