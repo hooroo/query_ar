@@ -132,11 +132,11 @@ module QueryAr
   end
 
   def limit
-    params[:limit]
+    params[:limit].to_i
   end
 
   def offset
-    params[:offset]
+    params[:offset].to_i
   end
 
   def model_class
