@@ -133,6 +133,8 @@ describe QueryAr do
       end
     end
 
+  end
+
     describe ".include" do
 
       user_query = <<-RUBY
@@ -156,7 +158,5 @@ describe QueryAr do
       end
 
     end
-
-  end
 
 end
