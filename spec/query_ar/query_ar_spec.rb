@@ -133,30 +133,64 @@ describe QueryAr do
       end
     end
 
-  end
+    describe ".includable" do
 
-    describe ".include" do
+      let(:query_params) { {include: 'images'} }
 
-      user_query = <<-RUBY
+      no_includes = <<-RUBY
         class UserQuery
           include QueryAr
         end
       RUBY
 
-      context "with includes passed", query_class: user_query do
-        it "adds the includes to the relation" do
-          UserQuery.new({include: 'a'}).all
-          expect(User.messages_received).to include(includes: [:a])
-        end
-      end
+      context "when NO includables have been declared", query_class: no_includes do
 
-      context "with empty includes", query_class: user_query do
-        it "does not pass includes to the relation" do
-          UserQuery.new({}).all
+        xit "does not include any relations" do
+          UserQuery.new(query_params).all
           expect(User.messages_received.keys).to_not include(:includes)
         end
       end
 
+      with_includes = <<-RUBY
+        class UserQuery
+          include QueryAr
+
+          includable :images, :posts
+        end
+      RUBY
+
+      context "when includables have been declared", query_class: with_includes do
+
+        xit "includes only the includable relations" do
+          UserQuery.new(query_params).all
+          expect(User.messages_received).to include(includes: [:images])
+        end
+      end
     end
+
+  end
+
+  describe ".include" do
+
+    user_query = <<-RUBY
+      class UserQuery
+        include QueryAr
+      end
+    RUBY
+
+    context "with includes passed", query_class: user_query do
+      it "adds the includes to the relation" do
+        UserQuery.new({include: 'a'}).all
+        expect(User.messages_received).to include(includes: [:a])
+      end
+    end
+
+    context "with empty includes", query_class: user_query do
+      it "does not pass includes to the relation" do
+        UserQuery.new({}).all
+        expect(User.messages_received.keys).to_not include(:includes)
+      end
+    end
+  end
 
 end
