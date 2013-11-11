@@ -146,6 +146,7 @@ Of course, Pull Requests are very welcome. If you have any doubts about the appr
 
 * Write up documentation for eagerloading with .includes.
 * Right now we get errors when we don't .include any relations
+* Make global config configurable in code (initialiser)
 
 ## Contributing
 
