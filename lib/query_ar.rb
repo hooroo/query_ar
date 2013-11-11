@@ -1,5 +1,6 @@
 require "query_ar/version"
 require 'query_ar/scoped_relation'
+require 'query_ar/includes_parser'
 require 'active_support/core_ext'
 
 module QueryAr
@@ -35,11 +36,6 @@ module QueryAr
       .offset(offset)
   end
 
-  def includes(*relation_names)
-    @relations_to_include = relation_names
-    self
-  end
-
   def summary
     {
       offset: offset,
@@ -49,6 +45,10 @@ module QueryAr
       count: count,
       total: total
     }
+  end
+
+  def includes
+    @relations_to_include ||= IncludesParser.from_params(params)
   end
 
   # Define and initialise the class-level _defaults Hash
@@ -98,7 +98,7 @@ module QueryAr
 
   private
 
-  attr_reader :params, :relations_to_include
+  attr_reader :params
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
@@ -134,10 +134,10 @@ module QueryAr
 
   def scoped_relation_with_includes
 
-    if relations_to_include == nil || relations_to_include.empty?
-      scoped_relation
+    if includes.present?
+      scoped_relation.includes(*includes)
     else
-      scoped_relation.includes(*relations_to_include)
+      scoped_relation
     end
 
   end
