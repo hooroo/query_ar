@@ -79,7 +79,7 @@ module QueryAr
 
   #     defaults      sort_by: 'name', sort_dir: 'ASC'
   #     queryable_by  :name, :street_address
-  #     scopeable_by  :in_group, :nearby_place_id
+  #     scopable_by  :in_group, :nearby_place_id
   #   end
   #
   module Dsl
@@ -91,9 +91,11 @@ module QueryAr
       self._valid_query_keys = Set.new(keys.map(&:to_sym))
     end
 
-    def scopeable_by(*keys)
+    def scopable_by(*keys)
       self._valid_scope_keys = Set.new(keys.map(&:to_sym))
     end
+    alias_method :scopeable_by, :scopable_by
+
   end
 
   private

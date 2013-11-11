@@ -97,7 +97,7 @@ describe QueryAr do
       end
     end
 
-    describe ".scopeable_by" do
+    describe ".scopable_by" do
 
       let(:query_params) { {older_than: 30, younger_than: 50} }
 
@@ -120,7 +120,7 @@ describe QueryAr do
         class UserQuery
           include QueryAr
 
-          scopeable_by :older_than
+          scopable_by :older_than
         end
       RUBY
 

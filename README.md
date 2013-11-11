@@ -23,7 +23,7 @@ class UserQuery
   defaults sort_by: 'last_name'
 
   queryable_by  :first_name, :last_name
-  scopeable_by  :older_than
+  scopable_by  :older_than
 end
 ```
 
@@ -97,7 +97,7 @@ class PlaceQuery
     limit: 10, offset: 0
 
   queryable_by  :name, :street_address
-  scopeable_by  :in_group, :nearby_place_id
+  scopable_by  :in_group, :nearby_place_id
 end
 ```
 
