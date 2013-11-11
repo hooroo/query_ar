@@ -21,14 +21,6 @@ describe QueryAr do
         end
       RUBY
 
-      with_defaults = <<-RUBY
-        class UserQuery
-          include QueryAr
-
-          defaults limit: 5, offset: 1, sort_by: 'name', sort_dir: 'DESC'
-        end
-      RUBY
-
       context "when NO defaults are provided", query_class: no_defaults do
 
         it "uses the global defaults" do
@@ -38,6 +30,14 @@ describe QueryAr do
           expect(User.messages_received).to include(order:  ['id ASC'])
         end
       end
+
+      with_defaults = <<-RUBY
+        class UserQuery
+          include QueryAr
+
+          defaults limit: 5, offset: 1, sort_by: 'name', sort_dir: 'DESC'
+        end
+      RUBY
 
       context "when defaults are provided", query_class: with_defaults do
 
