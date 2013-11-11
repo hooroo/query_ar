@@ -120,7 +120,15 @@ module QueryAr
   end
 
   def order
-    [ params[:sort_by], params[:sort_dir] ].join(' ')
+    [ sort_by, sort_dir].join(' ')
+  end
+
+  def sort_by
+    params[:sort_by]
+  end
+
+  def sort_dir
+    params[:sort_dir]
   end
 
   def limit
