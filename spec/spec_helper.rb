@@ -10,6 +10,8 @@ RSpec.configure do |config|
     if definition = example.class.metadata[:query_class]
       create_query_class(definition)
     end
+    #TODO - Remove hardcoding of User related stuff.
+    User.messages_received = nil
   end
 
   config.after(:each) do |example|

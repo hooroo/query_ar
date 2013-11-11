@@ -28,7 +28,7 @@ module QueryAr
   end
 
   def all
-    scoped_relation.includes(*relations_to_include)
+    scoped_relation_with_includes
       .where(query)
       .order(order)
       .limit(limit)
@@ -130,6 +130,16 @@ module QueryAr
 
   def scoped_relation
     ScopedRelation.new(model_class, scopes).scoped
+  end
+
+  def scoped_relation_with_includes
+
+    if relations_to_include == nil || relations_to_include.empty?
+      scoped_relation
+    else
+      scoped_relation.includes(*relations_to_include)
+    end
+
   end
 
 end

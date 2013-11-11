@@ -135,7 +135,26 @@ describe QueryAr do
 
     describe ".include" do
 
-      it "needs discussed"
+      user_query = <<-RUBY
+        class UserQuery
+          include QueryAr
+        end
+      RUBY
+
+      context "with includes passed", query_class: user_query do
+        it "adds the includes to the relation" do
+          UserQuery.new({}).includes(:a).all
+          expect(User.messages_received).to include(includes: [:a])
+        end
+      end
+
+      context "with empty includes", query_class: user_query do
+        it "does not pass includes to the relation" do
+          UserQuery.new({}).includes().all
+          expect(User.messages_received.keys).to_not include(:includes)
+        end
+      end
+
     end
 
   end
