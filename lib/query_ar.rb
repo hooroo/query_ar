@@ -47,7 +47,10 @@ module QueryAr
       sort_by: sort_by,
       sort_dir: sort_dir,
       count: count,
-      total: total
+      total: total,
+      included: includes.to_s,
+      valid_includes: valid_includes.to_s
+
     }
   end
 
