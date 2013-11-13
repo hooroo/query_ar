@@ -15,20 +15,6 @@ module QueryAr
       new(*flatten(includes_hash))
     end
 
-    def self.build_hash_from_string(string)
-      includes_hash = {}
-      include_paths = string.split(',').map { |path| path.split('.') }
-
-      include_paths.each do |path|
-        current_hash = includes_hash
-        path.each do |token|
-          current_hash[token] ||= {}
-          current_hash = current_hash[token]
-        end
-      end
-      includes_hash
-    end
-
     def to_s
       @to_s ||= begin
         paths = []
@@ -41,21 +27,6 @@ module QueryAr
         end
         paths = paths.map { |p| p.join('.') }
         paths.sort.join(',')
-      end
-    end
-
-    # TODO: make private
-    def stringify_keys(top_level_paths, hash, path_attrs = [])
-      current_key = hash.keys.first
-      path_attrs << current_key
-      top_level_paths << path_attrs.dup
-
-      hash[current_key].each do |path_value|
-        if path_value.is_a? Hash
-          path_attrs << stringify_keys(top_level_paths, path_value, path_attrs)
-        else
-          top_level_paths << (path_attrs.dup << path_value)
-        end
       end
     end
 
@@ -82,6 +53,34 @@ module QueryAr
     private
 
     attr_accessor :includes
+
+    def self.build_hash_from_string(string)
+      includes_hash = {}
+      include_paths = string.split(',').map { |path| path.split('.') }
+
+      include_paths.each do |path|
+        current_hash = includes_hash
+        path.each do |token|
+          current_hash[token] ||= {}
+          current_hash = current_hash[token]
+        end
+      end
+      includes_hash
+    end
+
+    def stringify_keys(top_level_paths, hash, path_attrs = [])
+      current_key = hash.keys.first
+      path_attrs << current_key
+      top_level_paths << path_attrs.dup
+
+      hash[current_key].each do |path_value|
+        if path_value.is_a? Hash
+          path_attrs << stringify_keys(top_level_paths, path_value, path_attrs)
+        else
+          top_level_paths << (path_attrs.dup << path_value)
+        end
+      end
+    end
 
     # Turns this:
     #
