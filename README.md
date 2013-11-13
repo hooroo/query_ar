@@ -22,8 +22,9 @@ class UserQuery
 
   defaults sort_by: 'last_name'
 
-  queryable_by  :first_name, :last_name
+  queryable_by :first_name, :last_name
   scopable_by  :older_than
+  includable   :images
 end
 ```
 
@@ -32,18 +33,18 @@ Then use it to query your model safely and succinctly from controller params:
 ```ruby
 
 # GET /users
-# params = { "older_than"=>30, "first_name"=>"Stu", "limit"=>5, "offset"=>0 }
+# params = { "include"=>"images", "older_than"=>30, "first_name"=>"Stu", "limit"=>5, "offset"=>0 }
 
 def index
-  query = UserQuery.new(params)
-  render json: query.all
+  users = UserQuery.new(params).all
+  render json: users
 end
 ```
 
 ### I've seen enough, how do I install it?
 
 I'm going to release to rubygems shortly, once I'm certain the interface won't change too much. Right now you
-can add to your Gemfile and reference github if you're a brave soul.
+can add to your Gemfile and reference github.
 
 ### Need more info? A real-world example
 
