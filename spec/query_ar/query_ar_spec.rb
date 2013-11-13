@@ -193,18 +193,18 @@ describe QueryAr do
       class UserQuery
         include QueryAr
 
-        includable :images, { :reviews => [ :author ]}
+        includable :images, { :reviews => [ :author ]}, :comments
       end
     RUBY
 
     context "when includes have been provided", query_class: with_includes do
 
-      let(:params) { {id: 1, include: 'images'} }
+      let(:params) { {id: 1, include: 'images,reviews.author'} }
 
-      it "finds by id from params" do
+      it "finds by id from params, including the specified graph" do
         UserQuery.new(params).find
         expect(User.messages_received).to include(find: [1])
-        expect(User.messages_received).to include(includes: [:images])
+        expect(User.messages_received).to include(includes: [:images, {reviews: [:author]}])
       end
 
     end
