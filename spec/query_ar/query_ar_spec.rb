@@ -49,10 +49,10 @@ describe QueryAr do
         end
 
         context "when the query params specify values" do
-          let(:query_params) { {limit: 10, offset: 20} }
+          let(:params) { {limit: 10, offset: 20} }
 
           it "uses those ones where available" do
-            UserQuery.new(query_params).all
+            UserQuery.new(params).all
             expect(User.messages_received).to include(limit:  [10])
             expect(User.messages_received).to include(offset: [20])
             expect(User.messages_received).to include(order:  ['name DESC'])
@@ -63,7 +63,7 @@ describe QueryAr do
 
     describe ".queryable_by" do
 
-      let(:query_params) { {name: 'Stu', role: 'admin'} }
+      let(:params) { {name: 'Stu', role: 'admin'} }
 
       no_queryable_attrs = <<-RUBY
         class UserQuery
@@ -74,7 +74,7 @@ describe QueryAr do
       context "when NO queryable attributes have been declared", query_class: no_queryable_attrs do
 
         it "does not query on anything" do
-          UserQuery.new(query_params).all
+          UserQuery.new(params).all
           expect(User.messages_received).to include(where: [{}])
         end
       end
@@ -90,7 +90,7 @@ describe QueryAr do
       context "when queryable attributes have been declared", query_class: queryable_by_name do
 
         it "queries on the allowed attribute only" do
-          UserQuery.new(query_params).all
+          UserQuery.new(params).all
           expect(User.messages_received).to include(where: [{name: 'Stu'}])
           expect(User.messages_received).to_not include(where: [{role: 'admin'}])
         end
@@ -99,7 +99,7 @@ describe QueryAr do
 
     describe ".scopable_by" do
 
-      let(:query_params) { {older_than: 30, younger_than: 50} }
+      let(:params) { {older_than: 30, younger_than: 50} }
 
       no_scopes = <<-RUBY
         class UserQuery
@@ -110,7 +110,7 @@ describe QueryAr do
       context "when NO scopes have been declared", query_class: no_scopes do
 
         it "will not query on any scopes" do
-          UserQuery.new(query_params).all
+          UserQuery.new(params).all
           expect(User.messages_received.keys).to_not include(:older_than)
           expect(User.messages_received.keys).to_not include(:younger_than)
         end
@@ -126,7 +126,7 @@ describe QueryAr do
 
       context "when scopes have been declared", query_class: with_scopes do
         it "will query on matching scopes" do
-          UserQuery.new(query_params).all
+          UserQuery.new(params).all
           expect(User.messages_received).to include(older_than: [30])
           expect(User.messages_received.keys).to_not include(:younger_than)
         end
@@ -135,7 +135,7 @@ describe QueryAr do
 
     describe ".includable" do
 
-      let(:query_params) { {include: 'images'} }
+      let(:params) { {include: 'images'} }
 
       no_includes = <<-RUBY
         class UserQuery
@@ -145,8 +145,8 @@ describe QueryAr do
 
       context "when NO includables have been declared", query_class: no_includes do
 
-        xit "does not include any relations" do
-          UserQuery.new(query_params).all
+        it "does not include any relations" do
+          UserQuery.new(params).all
           expect(User.messages_received.keys).to_not include(:includes)
         end
       end
@@ -155,14 +155,14 @@ describe QueryAr do
         class UserQuery
           include QueryAr
 
-          includable :images, :posts
+          includable :images, { :reviews => [ :author ]}
         end
       RUBY
 
       context "when includables have been declared", query_class: with_includes do
 
-        xit "includes only the includable relations" do
-          UserQuery.new(query_params).all
+        it "includes only the includable relations" do
+          UserQuery.new(params).all
           expect(User.messages_received).to include(includes: [:images])
         end
       end
@@ -172,15 +172,15 @@ describe QueryAr do
 
   describe "find" do
 
-    user_query = <<-RUBY
+    no_includes = <<-RUBY
       class UserQuery
         include QueryAr
       end
     RUBY
 
-    context "when NO includes have been provided", query_class: user_query do
+    context "when NO includes have been provided", query_class: no_includes do
 
-      let(:params) { { id: 1 } }
+      let(:params) { {id: 1} }
 
       it "finds by id from params" do
         UserQuery.new(params).find
@@ -189,9 +189,17 @@ describe QueryAr do
 
     end
 
-    context "when includes have been provided", query_class: user_query do
+    with_includes = <<-RUBY
+      class UserQuery
+        include QueryAr
 
-      let(:params) { { id: 1, include: 'images' } }
+        includable :images, { :reviews => [ :author ]}
+      end
+    RUBY
+
+    context "when includes have been provided", query_class: with_includes do
+
+      let(:params) { {id: 1, include: 'images'} }
 
       it "finds by id from params" do
         UserQuery.new(params).find

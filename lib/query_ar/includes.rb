@@ -1,16 +1,21 @@
+require 'active_support/core_ext'
+
 module QueryAr
   class Includes
     include Comparable
+    include Enumerable
 
     def initialize(*includes)
-      @includes = includes
+      @includes = includes.compact
     end
 
     def self.from_params(params)
       self.from_string(params[:include])
     end
 
-    def self.from_string(string = '')
+    def self.from_string(string)
+      return new if string.blank?
+
       includes_hash = build_hash_from_string(string)
       new(*flatten(includes_hash))
     end
@@ -32,6 +37,20 @@ module QueryAr
 
     def include?(key)
       includes.include? key
+    end
+
+    def present?
+      includes.present?
+    end
+
+    def each(&block)
+      includes.each do |include|
+        if block_given?
+          block.call include
+        else
+          yield include
+        end
+      end
     end
 
     def &(other_includes)
