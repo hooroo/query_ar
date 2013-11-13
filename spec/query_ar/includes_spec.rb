@@ -14,6 +14,23 @@ module QueryAr
       end
     end
 
+    describe 'equality' do
+
+      it 'works as expected' do
+        one = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
+        two = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
+        expect(Includes.new(*one)).to eq Includes.new(*two)
+
+        one = [ {reviews: [:author]}, :tags, {images: [:comments]} ]
+        two = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
+        expect(Includes.new(*one)).to eq Includes.new(*two)
+
+        one = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
+        two = [ :tags, {images: [:comments]}, :reviews ]
+        expect(Includes.new(*one)).to_not eq Includes.new(*two)
+      end
+    end
+
     describe '.from_string' do
 
       let(:string)   { 'a,a.b,a.b.c,b,c' }
@@ -51,22 +68,6 @@ module QueryAr
 
         includes = Includes.new(:hashtags, {images: [{comments: [:author, :rating]}]}, :reviews)
         expect(includes.to_s).to eq 'hashtags,images,images.comments,images.comments.author,images.comments.rating,reviews'
-      end
-    end
-
-    describe 'equality' do
-      it 'works as expected' do
-        one = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
-        two = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
-        expect(Includes.new(*one)).to eq Includes.new(*two)
-
-        one = [ {reviews: [:author]}, :tags, {images: [:comments]} ]
-        two = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
-        expect(Includes.new(*one)).to eq Includes.new(*two)
-
-        one = [ :tags, {images: [:comments]}, {reviews: [:author]} ]
-        two = [ :tags, {images: [:comments]}, :reviews ]
-        expect(Includes.new(*one)).to_not eq Includes.new(*two)
       end
     end
 
