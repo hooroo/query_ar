@@ -62,22 +62,24 @@ end
 
 We want to provide a REST API with, amongst other things, an index action for querying lists of places.
 
-The [Hooroo Places](http://places.hooroo.com) API might accept this request for GET-ing the first 10 "See & Do" places near Mamasita with "Museum" in the name, ordered by name:
+The [Hooroo Places](http://places.hooroo.com) API accepts this request for GET-ing the first 10 "See & Do" places near Mamasita with "Museum" in the name, ordered by name. 
+It also allows requests to specify (according to the pattern set out in the [JSON API spec](http://jsonapi.org/) what related objects to serialise, too:
 
 ```
-"/api/places?in_group=see_do&nearby_place_id=mamasita&name=museum&sort_by=name&limit=10&offset=0"
+"/api/places?include=images,comments.author&in_group=see_do&nearby_place_id=mamasita&name=museum&sort_by=name&limit=10&offset=0"
 ```
 
 When our Rails app receives this request it parses the query string as a params hash, like this:
 
 ```
-{"in_group"=>"see_do", "nearby_place_id"=>"mamasita", "name"=>"museum", "sort_by"=>"name", "limit"=>10, "offset"=>0}
+{"include"=>"images,comments.author", "in_group"=>"see_do", "nearby_place_id"=>"mamasita", "name"=>"museum", "sort_by"=>"name", "limit"=>10, "offset"=>0}
 ```
 
-This gem provides a standard, declarative way to get from the above params hash, to a queried ActiveRecord relation like this:
+QueryAr provides a standard, declarative way to get from the above params hash, to a queried ActiveRecord relation like this:
 
 ```ruby
-Place.in_group('see_do')
+Place.includes(:images, comments: [:author]).
+  .in_group('see_do')
   .nearby_place_id('mamasita')
   .where(name: 'museum')
   .order('name')
@@ -87,7 +89,8 @@ Place.in_group('see_do')
 
 ### Define a query
 
-Continuing our example, here's what the PlaceQuery would look like:
+Continuing our example, the object responsible for taking a set of params and constructing a scoped and eager-loaded AR relation is the Query. 
+Here's what the PlaceQuery would look like:
 
 ```ruby
 class PlaceQuery
@@ -96,8 +99,9 @@ class PlaceQuery
   defaults sort_by: 'name', sort_dir: 'ASC',
     limit: 10, offset: 0
 
-  queryable_by  :name, :street_address
+  queryable_by :name, :street_address
   scopable_by  :in_group, :nearby_place_id
+  includable   :images, comments: [:author]
 end
 ```
 
@@ -106,13 +110,32 @@ The above class deals with building queries for the Place model, and declares th
 * there will be specific default sorting and pagination for Places
 * only Place attributes ```#name``` and ```#street_address``` can be queried on
 * the Place scopes that can be applied are ```#in_group``` and ```#nearby_place_id```
+* ```place.images```, ```place.comments``` and ```place.comments.author``` are the only place relations that *can* be included in the JSON response
 
 In our Places Controller, we use this class like so:
 
 ```ruby
 def index
-  query = PlaceQuery.new(params)
-  render json: query.all
+  places = PlaceQuery.new(params).all
+  render json: places
+end
+```
+
+You can also find single records. Includes will still be taken into consideration:
+
+```ruby
+def index
+  place = PlaceQuery.new(params).find
+  render json: place
+end
+```
+
+The find method will look for a param called ```id``` by default, but you can pass another key in if your params are named differently:
+
+```ruby
+def index
+  place = PlaceQuery.new(params).find(:place_id)
+  render json: place
 end
 ```
 
@@ -121,6 +144,9 @@ The public interface of every query object is as follows:
 ```ruby
 query.all
 #=> #<ActiveRecord::Relation [Place(id: 157 name: Melbourne Museum)...]>
+
+query.find
+#=> Place
 
 query.count
 #=> 10 # number of records #all contains
@@ -138,15 +164,34 @@ query.summary
 
 The summary is designed to be placed into the JSON response as a meta key, although the details of serialising the response into JSON is intentionally left out of this gem.
 
+### Run-down of DSL:
+
+#### defaults
+
+Keys and values specifying defaults for things like ```sort_by```, ```sort_dir```, ```limit``` and ```offset```.
+
+#### queryable_by
+
+Declares what attributes can be queried in the ActiveRecord ```where``` clause.
+
+#### scopable_by
+
+Declares which scopes on your model can be queried on.
+
+
+#### includable
+
+Declares what related items on your model's graph can be included in the response. Allowing the client to specify what size of payload they require.
+
+## Summary
+
 If you have any comments or questions, please feel free to get in touch.
 
 Of course, Pull Requests are very welcome. If you have any doubts about the appropriateness of a particular feature you want to add, please don't hesitate to create a GitHub issue and we can discuss.
 
 ## TODO:
 
-* Write up documentation for eagerloading with .includes.
-* Right now we get errors when we don't .include any relations
-* Make global config configurable in code (initialiser)
+* Make global defaults configurable in code (initialiser/yaml)
 * Query on attributes belonging to included relations
 
 ## Contributing
