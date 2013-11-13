@@ -79,7 +79,7 @@ When our Rails app receives this request it parses the query string as a params 
 QueryAr provides a standard, declarative way to get from the above params hash, to a queried ActiveRecord relation like this:
 
 ```ruby
-Place.includes(:images, comments: [:author]).
+Place.includes(:images, comments: [:author])
   .in_group('see_do')
   .nearby_place_id('mamasita')
   .where(name: 'museum')
