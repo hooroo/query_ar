@@ -1,5 +1,11 @@
 require 'active_support/core_ext'
 
+# Hopefully the spec is robust enough that we can
+# break this down and refactor as we go. I'm not
+# happy with the complexity of it, but it's a
+# reasonably complex problem
+# ~ Stu
+
 module QueryAr
   class Includes
     include Comparable
@@ -10,7 +16,7 @@ module QueryAr
     end
 
     def self.from_params(params)
-      self.from_string(params[:include])
+      from_string(params[:include])
     end
 
     def self.from_string(string)
