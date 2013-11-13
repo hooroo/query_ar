@@ -7,16 +7,12 @@ require 'active_support/core_ext'
 # ~ Stu
 
 module QueryAr
-  class Includes
+  class Includes < SimpleDelegator
     include Comparable
-    include Enumerable
 
     def initialize(*includes)
       @includes = includes.compact
-    end
-
-    def self.from_params(params)
-      from_string(params[:include])
+      super(@includes)
     end
 
     def self.from_string(string)
@@ -41,24 +37,6 @@ module QueryAr
       end
     end
 
-    def include?(key)
-      includes.include? key
-    end
-
-    def present?
-      includes.present?
-    end
-
-    def each(&block)
-      includes.each do |include|
-        if block_given?
-          block.call include
-        else
-          yield include
-        end
-      end
-    end
-
     def &(other_includes)
       hash = self.class.build_hash_from_string(to_s)
       other_hash = self.class.build_hash_from_string(other_includes.to_s)
@@ -69,10 +47,6 @@ module QueryAr
 
     def <=>(other_includes)
       to_s <=> other_includes.to_s
-    end
-
-    def inspect
-      includes.inspect
     end
 
     private

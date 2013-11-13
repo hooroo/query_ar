@@ -4,10 +4,20 @@ require 'pry'
 module QueryAr
   describe Includes do
 
-    describe '.from_params' do
+    context 'when constructed with no value' do
+      let(:includes) { Includes.new }
 
-      let(:params) { { include: 'a,a.b,a.b.c,b,c' } }
-      let(:includes) { Includes.from_params(params) }
+      it 'is empty, not present and blank' do
+        expect(includes).to be_empty
+        expect(includes).to be_blank
+        expect(includes).to_not be_present
+      end
+    end
+
+    describe '.from_string' do
+
+      let(:string)   { 'a,a.b,a.b.c,b,c' }
+      let(:includes) { Includes.from_string(string) }
 
       it 'creates single level includes' do
         expect(includes).to include :b
@@ -19,9 +29,17 @@ module QueryAr
       end
 
       it 'creates same structure when implicit parts of the path are removed' do
-        simplified_params =  { include: 'a.b.c,b,c' }
-        simplified_includes =  Includes.from_params(simplified_params)
+        simplified_params = 'a.b.c,b,c'
+        simplified_includes =  Includes.from_string(simplified_params)
         expect(includes).to eq simplified_includes
+      end
+
+      context 'when a nil or empty string is provided' do
+
+        it 'returns a new includes' do
+          expect(Includes.from_string(nil)).to eq Includes.new
+          expect(Includes.from_string('')).to eq Includes.new
+        end
       end
     end
 
