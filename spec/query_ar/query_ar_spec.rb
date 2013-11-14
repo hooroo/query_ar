@@ -135,15 +135,15 @@ describe QueryAr do
 
     describe ".includable" do
 
-      let(:params) { {include: 'images'} }
+      let(:params) { {} }
 
-      no_includes = <<-RUBY
+      user_query = <<-RUBY
         class UserQuery
           include QueryAr
         end
       RUBY
 
-      context "when NO includables have been declared", query_class: no_includes do
+      context "when NO includables are declared", query_class: user_query do
 
         it "does not include any relations" do
           UserQuery.new(params).all
@@ -151,18 +151,10 @@ describe QueryAr do
         end
       end
 
-      with_includes = <<-RUBY
-        class UserQuery
-          include QueryAr
-
-          includable :images, { :reviews => [ :author ]}
-        end
-      RUBY
-
-      context "when includables have been declared", query_class: with_includes do
+      context "when includables are declared", query_class: user_query do
 
         it "includes only the includable relations" do
-          UserQuery.new(params).all
+          UserQuery.new(params).includes(:images).all
           expect(User.messages_received).to include(includes: [:images])
         end
       end
@@ -172,13 +164,13 @@ describe QueryAr do
 
   describe "find" do
 
-    no_includes = <<-RUBY
+    user_query = <<-RUBY
       class UserQuery
         include QueryAr
       end
     RUBY
 
-    context "when NO includes have been provided", query_class: no_includes do
+    context "when NO includes have been provided", query_class: user_query do
 
       let(:params) { {id: 1} }
 
@@ -189,20 +181,14 @@ describe QueryAr do
 
     end
 
-    with_includes = <<-RUBY
-      class UserQuery
-        include QueryAr
-
-        includable :images, { :reviews => [ :author ]}, :comments
-      end
-    RUBY
-
-    context "when includes have been provided", query_class: with_includes do
+    context "when includes have been provided", query_class: user_query do
 
       let(:params) { {id: 1, include: 'images,reviews.author'} }
 
       it "finds by id from params, including the specified graph" do
-        UserQuery.new(params).find
+
+        UserQuery.new(params).includes(:images, { :reviews => [ :author ]}).find
+
         expect(User.messages_received).to include(find: [1])
         expect(User.messages_received).to include(includes: [:images, {reviews: [:author]}])
       end

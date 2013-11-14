@@ -1,6 +1,5 @@
 require "query_ar/version"
 require 'query_ar/scoped_relation'
-require 'query_ar/includes'
 require 'active_support/core_ext'
 
 module QueryAr
@@ -47,15 +46,13 @@ module QueryAr
       sort_by: sort_by,
       sort_dir: sort_dir,
       count: count,
-      total: total,
-      included: includes.to_s,
-      valid_includes: valid_includes.to_s
-
+      total: total
     }
   end
 
-  def includes
-    @includes ||= Includes.from_string(params[:include]) & valid_includes
+  def includes(*includes)
+    @relation_includes = includes
+    self
   end
 
   # Define and initialise the class-level _defaults Hash
@@ -71,9 +68,6 @@ module QueryAr
     host_class._valid_query_keys = Set.new
 
     host_class.class_attribute :_valid_scope_keys
-    host_class._valid_scope_keys = Set.new
-
-    host_class.class_attribute :_valid_includes
     host_class._valid_scope_keys = Set.new
 
     host_class.extend(Dsl)
@@ -107,15 +101,11 @@ module QueryAr
 
     alias_method :scopeable_by, :scopable_by
 
-    def includable(*keys)
-      self._valid_includes = Set.new(keys)
-    end
-
   end
 
   private
 
-  attr_reader :params
+  attr_reader :params, :relation_includes
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
@@ -158,12 +148,8 @@ module QueryAr
   end
 
   def with_includes(relation)
-    return relation unless includes.present?
-    relation.includes(*includes)
-  end
-
-  def valid_includes
-    @valid_includes ||= Includes.new(*self.class._valid_includes)
+    return relation unless relation_includes.present?
+    relation.includes(*relation_includes)
   end
 
 end
