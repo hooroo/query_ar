@@ -14,7 +14,7 @@ class User
 end
 ```
 
-You can declare a query:
+You can declare a query (note the naming convention, this is important):
 
 ```ruby
 class UserQuery
@@ -113,6 +113,9 @@ The above class deals with building queries for the Place model, and declares th
 * the Place scopes that can be applied are ```#in_group``` and ```#nearby_place_id```
 * ```place.images```, ```place.comments``` and ```place.comments.author``` are the only place relations that *can* be included in the JSON response
 
+**The name of ```PlaceQuery``` is very intentional. The gem derives the name of the ActiveRecord relation from this name so it must folllow the convention above.**
+If required and appropriate, we *could* implement a way of specifying the model class.
+
 In our Places Controller, we use this class like so:
 
 ```ruby
@@ -194,6 +197,8 @@ Of course, Pull Requests are very welcome. If you have any doubts about the appr
 
 * Make global defaults configurable in code (initialiser/yaml)
 * Query on attributes belonging to included relations
+* Clarify how includes work.
+* Raise a nicely-worded exception when naming convention is not followed for Query obejcts
 
 ## Contributing
 
