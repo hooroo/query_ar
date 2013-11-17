@@ -197,8 +197,10 @@ Of course, Pull Requests are very welcome. If you have any doubts about the appr
 
 * Make global defaults configurable in code (initialiser/yaml)
 * Query on attributes belonging to included relations
-* Clarify how includes work.
+* Clarify how includes should work.
 * Raise a nicely-worded exception when naming convention is not followed for Query obejcts
+* Allow querying on attributes of associated models (e.g. ```queryable_by 'images.type'```)
+* Allow aliasing to provide an abstract layer over data-model? (e.g. ```queryable_by 'image_type'``` instead of the above)
 
 ## Contributing
 
