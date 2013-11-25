@@ -28,7 +28,7 @@ module QueryAr
   end
 
   def all
-    scoped_relation
+     with_includes(scoped_relation)
       .where(where_conditions)
       .order(order)
       .limit(limit)
@@ -36,7 +36,7 @@ module QueryAr
   end
 
   def find(id_param = :id)
-    model_class.find(params[id_param])
+     with_includes(model_class).find(params[id_param])
   end
 
   def summary
@@ -48,6 +48,11 @@ module QueryAr
       count: count,
       total: total
     }
+  end
+
+  def includes(*includes)
+    @relation_includes = includes
+    self
   end
 
   # Define and initialise the class-level _defaults Hash
@@ -105,7 +110,7 @@ module QueryAr
 
   private
 
-  attr_reader :params
+  attr_reader :params, :relation_includes
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
@@ -157,6 +162,11 @@ module QueryAr
 
   def scoped_relation
     ScopedRelation.new(model_class, scopes).scoped
+  end
+
+  def with_includes(relation)
+    return relation unless relation_includes.present?
+    relation.includes(*relation_includes)
   end
 
 end

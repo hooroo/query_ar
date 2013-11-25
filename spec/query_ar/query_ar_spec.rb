@@ -155,4 +155,29 @@ describe QueryAr do
 
   end
 
+  describe "includes" do
+
+    user_query = <<-RUBY
+      class UserQuery
+        include QueryAr
+      end
+    RUBY
+
+    describe "including relations in the query", query_class: user_query do
+
+      it "adds includes to the relation" do
+        UserQuery.new.includes(:a, :b).all
+        expect(User.messages_received).to include(includes: [:a, :b])
+      end
+
+      it "doesn't add includes to the relation if none provided" do
+        UserQuery.new.all
+        expect(User.messages_received).to_not include(includes: [])
+        expect(User.messages_received).to_not include(includes: nil)
+      end
+
+    end
+
+  end
+
 end
