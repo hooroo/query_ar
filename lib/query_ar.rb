@@ -24,19 +24,19 @@ module QueryAr
   end
 
   def total
-    scoped_relation.where(query).count
+    scoped_relation.where(where_conditions).count
   end
 
   def all
-    with_includes(scoped_relation)
-      .where(query)
+    scoped_relation
+      .where(where_conditions)
       .order(order)
       .limit(limit)
       .offset(offset)
   end
 
   def find(id_param = :id)
-    with_includes(model_class).find(params[id_param])
+    model_class.find(params[id_param])
   end
 
   def summary
@@ -50,11 +50,6 @@ module QueryAr
     }
   end
 
-  def includes(*includes)
-    @relation_includes = includes
-    self
-  end
-
   # Define and initialise the class-level _defaults Hash
   # and _valid_query_keys Set.
   #
@@ -64,11 +59,11 @@ module QueryAr
     host_class.class_attribute :_defaults
     host_class._defaults = Hash.new
 
-    host_class.class_attribute :_valid_query_keys
-    host_class._valid_query_keys = Set.new
+    host_class.class_attribute :_where_attribute_mappings
+    host_class._where_attribute_mappings = {}
 
-    host_class.class_attribute :_valid_scope_keys
-    host_class._valid_scope_keys = Set.new
+    host_class.class_attribute :_scope_attribute_mappings
+    host_class._scope_attribute_mappings = {}
 
     host_class.extend(Dsl)
   end
@@ -82,41 +77,58 @@ module QueryAr
   #     include ActiveRecordQuery
 
   #     defaults      sort_by: 'name', sort_dir: 'ASC'
-  #     queryable_by  :name, :street_address
-  #     scopable_by  :in_group, :nearby_place_id
+  #     queryable_by  :name
+  #     queryable_by  :group, as: :group_id
+  #     queryable_by  :group, aliases_scope: :in_group
   #   end
   #
   module Dsl
+
     def defaults(options = {})
       self._defaults = options.symbolize_keys
     end
 
-    def queryable_by(*keys)
-      self._valid_query_keys = Set.new(keys.map(&:to_sym))
+    def queryable_by(key, options = nil)
+
+      if options
+        if options[:aliases_scope]
+          self._scope_attribute_mappings[key] = options[:aliases_scope]
+        elsif options[:aliases_attribute]
+          self._where_attribute_mappings[key.to_sym] = options[:aliases_attribute]
+        end
+      else
+        self._where_attribute_mappings[key.to_sym] = key
+      end
+
     end
-
-    def scopable_by(*keys)
-      self._valid_scope_keys = Set.new(keys.map(&:to_sym))
-    end
-
-    alias_method :scopeable_by, :scopable_by
-
   end
 
   private
 
-  attr_reader :params, :relation_includes
+  attr_reader :params
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
   end
 
-  def query
-    params.slice(*self.class._valid_query_keys)
+  def where_conditions
+    create_conditions_from_mappings(self.class._where_attribute_mappings)
   end
 
   def scopes
-    params.slice(*self.class._valid_scope_keys)
+    create_conditions_from_mappings(self.class._scope_attribute_mappings)
+  end
+
+  def create_conditions_from_mappings(mappings)
+
+    queryable_params = params.slice(*mappings.keys)
+
+    queryable_params.inject({}) do | conditions, (attr_name, value) |
+      mapped_attr_name = mappings[attr_name]
+      conditions[mapped_attr_name] = value
+      conditions
+    end
+
   end
 
   def order
@@ -145,11 +157,6 @@ module QueryAr
 
   def scoped_relation
     ScopedRelation.new(model_class, scopes).scoped
-  end
-
-  def with_includes(relation)
-    return relation unless relation_includes.present?
-    relation.includes(*relation_includes)
   end
 
 end

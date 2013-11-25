@@ -10,7 +10,7 @@ Given this ActiveRecord model:
 
 ```ruby
 class User
-  scope :older_than, ->(years) { where("age > ?", years) }
+  scope :age_greater_than, ->(years) { where("age > ?", years) }
 end
 ```
 
@@ -22,9 +22,11 @@ class UserQuery
 
   defaults sort_by: 'last_name'
 
-  queryable_by :first_name, :last_name
-  scopable_by  :older_than
-  includable   :images
+  queryable_by :first_name
+  queryable_by :last_name
+  queryable_by :employer, aliases_attribute: :employer_id
+  queryable_by :older_than, aliases_scope: :age_greater_than
+
 end
 ```
 
@@ -33,7 +35,7 @@ Then use it to query your model safely and succinctly from controller params:
 ```ruby
 
 # GET /users
-# params = { "include"=>"images", "older_than"=>30, "first_name"=>"Stu", "limit"=>5, "offset"=>0 }
+# params = { "older_than"=>30, "first_name"=>"Stu", "employer": 1, "limit"=>5, "offset"=>0 }
 
 def index
   users = UserQuery.new(params).all
@@ -63,17 +65,17 @@ end
 
 We want to provide a REST API with, amongst other things, an index action for querying lists of places.
 
-The [Hooroo Places](http://places.hooroo.com) API accepts this request for GET-ing the first 10 "See & Do" places near Mamasita with "Museum" in the name, ordered by name. 
+The [Hooroo Places](http://places.hooroo.com) API accepts this request for GET-ing the first 10 "See & Do" places near Mamasita with "Museum" in the name, ordered by name.
 It also allows requests to specify (according to the pattern set out in the [JSON API spec](http://jsonapi.org/) what related objects to serialise, too:
 
 ```
-"/api/places?include=images,comments.author&in_group=see_do&nearby_place_id=mamasita&name=museum&sort_by=name&limit=10&offset=0"
+"/api/places?in_group=see_do&nearby_place_id=mamasita&name=museum&sort_by=name&limit=10&offset=0"
 ```
 
 When our Rails app receives this request it parses the query string as a params hash, like this:
 
 ```
-{"include"=>"images,comments.author", "in_group"=>"see_do", "nearby_place_id"=>"mamasita", "name"=>"museum", "sort_by"=>"name", "limit"=>10, "offset"=>0}
+{"in_group"=>"see_do", "nearby_place_id"=>"mamasita", "name"=>"museum", "sort_by"=>"name", "limit"=>10, "offset"=>0}
 ```
 
 QueryAr provides a standard, declarative way to get from the above params hash, to a queried ActiveRecord relation like this:
@@ -90,7 +92,7 @@ Place.includes(:images, comments: [:author])
 
 ### Define a query
 
-Continuing our example, the object responsible for taking a set of params and constructing a scoped and eager-loaded AR relation is the Query. 
+Continuing our example, the object responsible for taking a set of params and constructing a scoped and eager-loaded AR relation is the Query.
 Here's what the PlaceQuery would look like:
 
 ```ruby
@@ -100,9 +102,10 @@ class PlaceQuery
   defaults sort_by: 'name', sort_dir: 'ASC',
     limit: 10, offset: 0
 
-  queryable_by :name, :street_address
-  scopable_by  :in_group, :nearby_place_id
-  includable   :images, comments: [:author]
+  queryable_by :name
+  queryable_by :street_address
+  queryable_by  :in_group, aliases_scope: :in_group
+  queryable_by  :nearby_place_id, aliases_scope: :nearby_place_id
 end
 ```
 
@@ -111,7 +114,6 @@ The above class deals with building queries for the Place model, and declares th
 * there will be specific default sorting and pagination for Places
 * only Place attributes ```#name``` and ```#street_address``` can be queried on
 * the Place scopes that can be applied are ```#in_group``` and ```#nearby_place_id```
-* ```place.images```, ```place.comments``` and ```place.comments.author``` are the only place relations that *can* be included in the JSON response
 
 **The name of ```PlaceQuery``` is very intentional. The gem derives the name of the ActiveRecord relation from this name so it must folllow the convention above.**
 If required and appropriate, we *could* implement a way of specifying the model class.
@@ -176,16 +178,11 @@ Keys and values specifying defaults for things like ```sort_by```, ```sort_dir``
 
 #### queryable_by
 
-Declares what attributes can be queried in the ActiveRecord ```where``` clause.
+Declares what attributes can be queried in the ActiveRecord ```where``` clause. These are either
+* passed through directly as an attribute match
+* mapped to an attribute with a different name using the `aliases_attribute` option
+* mapped to a named scope using the `aliases_scope` option
 
-#### scopable_by
-
-Declares which scopes on your model can be queried on.
-
-
-#### includable
-
-Declares what related items on your model's graph can be included in the response. Allowing the client to specify what size of payload they require.
 
 ## Summary
 
@@ -199,7 +196,6 @@ Of course, Pull Requests are very welcome. If you have any doubts about the appr
 * Query on attributes belonging to included relations
 * Clarify how includes should work.
 * Raise a nicely-worded exception when naming convention is not followed for Query obejcts
-* Allow querying on attributes of associated models (e.g. ```queryable_by 'images.type'```)
 * Allow aliasing to provide an abstract layer over data-model? (e.g. ```queryable_by 'image_type'``` instead of the above)
 
 ## Contributing

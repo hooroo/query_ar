@@ -95,69 +95,42 @@ describe QueryAr do
           expect(User.messages_received).to_not include(where: [{role: 'admin'}])
         end
       end
-    end
 
-    describe ".scopable_by" do
-
-      let(:params) { {older_than: 30, younger_than: 50} }
-
-      no_scopes = <<-RUBY
-        class UserQuery
-          include QueryAr
-        end
-      RUBY
-
-      context "when NO scopes have been declared", query_class: no_scopes do
-
-        it "will not query on any scopes" do
-          UserQuery.new(params).all
-          expect(User.messages_received.keys).to_not include(:older_than)
-          expect(User.messages_received.keys).to_not include(:younger_than)
-        end
-      end
-
-      with_scopes = <<-RUBY
+      queryable_by_alias = <<-RUBY
         class UserQuery
           include QueryAr
 
-          scopable_by :older_than
+          queryable_by :name, aliases_attribute: :other_name
         end
       RUBY
 
-      context "when scopes have been declared", query_class: with_scopes do
-        it "will query on matching scopes" do
+      context "when queryable attributes have been aliased", query_class: queryable_by_alias do
+
+        it "queries using the aliased attribute" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(older_than: [30])
-          expect(User.messages_received.keys).to_not include(:younger_than)
+          expect(User.messages_received).to include(where: [{other_name: 'Stu'}])
         end
       end
-    end
 
-    describe ".includable" do
 
-      let(:params) { {} }
-
-      user_query = <<-RUBY
+      queryable_by_aliased_scope = <<-RUBY
         class UserQuery
           include QueryAr
+
+          queryable_by :age_greater_than, aliases_scope: :older_than
         end
       RUBY
 
-      context "when NO includables are declared", query_class: user_query do
+      context "when queryable attributes have been aliased to a scope", query_class: queryable_by_aliased_scope do
 
-        it "does not include any relations" do
+        let(:params) { {age_greater_than: 21} }
+
+        it "queries on the aliased scope" do
           UserQuery.new(params).all
-          expect(User.messages_received.keys).to_not include(:includes)
+          expect(User.messages_received).to include(older_than: [21])
         end
       end
 
-      context "when includables are declared", query_class: user_query do
-
-        it "includes only the includable relations" do
-          UserQuery.new(params).includes(:images).all
-          expect(User.messages_received).to include(includes: [:images])
-        end
-      end
     end
 
   end
@@ -170,29 +143,14 @@ describe QueryAr do
       end
     RUBY
 
-    context "when NO includes have been provided", query_class: user_query do
+    let(:params) { {id: 1} }
 
-      let(:params) { {id: 1} }
+    describe "finding by id", query_class: user_query do
 
       it "finds by id from params" do
         UserQuery.new(params).find
         expect(User.messages_received).to include(find: [1])
       end
-
-    end
-
-    context "when includes have been provided", query_class: user_query do
-
-      let(:params) { {id: 1, include: 'images,reviews.author'} }
-
-      it "finds by id from params, including the specified graph" do
-
-        UserQuery.new(params).includes(:images, { :reviews => [ :author ]}).find
-
-        expect(User.messages_received).to include(find: [1])
-        expect(User.messages_received).to include(includes: [:images, {reviews: [:author]}])
-      end
-
     end
 
   end
