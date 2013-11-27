@@ -43,7 +43,7 @@ module QueryAr
     {
       offset: offset,
       limit: limit,
-      sort_by: sort_by,
+      sort_by: sort_by.gsub("#{base_table_name}.", ""),
       sort_dir: sort_dir,
       count: count,
       total: total
