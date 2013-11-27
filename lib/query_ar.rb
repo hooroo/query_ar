@@ -117,7 +117,13 @@ module QueryAr
   end
 
   def where_conditions
-    create_conditions_from_mappings(self.class._where_attribute_mappings)
+    conditions = create_conditions_from_mappings(self.class._where_attribute_mappings)
+
+    conditions.inject({}) do | disambiguated_conditions, (attr_name, value) |
+      disambiguated_conditions["#{base_table_name}.#{attr_name}"] = value
+      disambiguated_conditions
+    end
+
   end
 
   def scopes
@@ -141,7 +147,7 @@ module QueryAr
   end
 
   def sort_by
-    "#{model_class_name.underscore.pluralize}.#{params[:sort_by]}"
+    "#{base_table_name}.#{params[:sort_by]}"
   end
 
   def sort_dir
@@ -154,6 +160,10 @@ module QueryAr
 
   def offset
     params[:offset].to_i
+  end
+
+  def base_table_name
+    model_class_name.underscore.pluralize
   end
 
   def model_class_name

@@ -91,8 +91,8 @@ describe QueryAr do
 
         it "queries on the allowed attribute only" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(where: [{name: 'Stu'}])
-          expect(User.messages_received).to_not include(where: [{role: 'admin'}])
+          expect(User.messages_received).to include(where: [{'users.name' => 'Stu'}])
+          expect(User.messages_received).to_not include(where: [{'users.role' => 'admin'}])
         end
       end
 
@@ -108,7 +108,7 @@ describe QueryAr do
 
         it "queries using the aliased attribute" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(where: [{other_name: 'Stu'}])
+          expect(User.messages_received).to include(where: [{'users.other_name' => 'Stu'}])
         end
       end
 
