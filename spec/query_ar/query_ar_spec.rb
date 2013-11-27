@@ -27,7 +27,7 @@ describe QueryAr do
           UserQuery.new.all
           expect(User.messages_received).to include(limit:  [20])
           expect(User.messages_received).to include(offset: [0])
-          expect(User.messages_received).to include(order:  ['id ASC'])
+          expect(User.messages_received).to include(order:  ['users.id ASC'])
         end
       end
 
@@ -45,7 +45,7 @@ describe QueryAr do
           UserQuery.new.all
           expect(User.messages_received).to include(limit:  [5])
           expect(User.messages_received).to include(offset: [1])
-          expect(User.messages_received).to include(order:  ['name DESC'])
+          expect(User.messages_received).to include(order:  ['users.name DESC'])
         end
 
         context "when the query params specify values" do
@@ -55,7 +55,7 @@ describe QueryAr do
             UserQuery.new(params).all
             expect(User.messages_received).to include(limit:  [10])
             expect(User.messages_received).to include(offset: [20])
-            expect(User.messages_received).to include(order:  ['name DESC'])
+            expect(User.messages_received).to include(order:  ['users.name DESC'])
           end
         end
       end

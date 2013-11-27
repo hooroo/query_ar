@@ -141,7 +141,7 @@ module QueryAr
   end
 
   def sort_by
-    params[:sort_by]
+    "#{model_class_name.underscore.pluralize}.#{params[:sort_by]}"
   end
 
   def sort_dir
@@ -156,8 +156,12 @@ module QueryAr
     params[:offset].to_i
   end
 
+  def model_class_name
+    self.class.to_s.gsub('Query', '')
+  end
+
   def model_class
-    self.class.to_s.gsub('Query', '').constantize
+    model_class_name.constantize
   end
 
   def scoped_relation
