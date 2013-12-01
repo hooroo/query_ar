@@ -104,18 +104,19 @@ class PlaceQuery
 
   queryable_by :name
   queryable_by :street_address
-  queryable_by  :in_group, aliases_scope: :in_group
-  queryable_by  :nearby_place_id, aliases_scope: :nearby_place_id
+  queryable_by :group, aliases_scope: :in_group
+  queryable_by :nearby_place, aliases_scope: :nearby_place_id
 end
 ```
 
 The above class deals with building queries for the Place model, and declares that:
 
 * there will be specific default sorting and pagination for Places
-* only Place attributes ```#name``` and ```#street_address``` can be queried on
-* the Place scopes that can be applied are ```#in_group``` and ```#nearby_place_id```
+* Place attributes ```#name``` and ```#street_address``` can be queried on
+* The Place can also be queried by ```group``` and ```nearby_place```, which map to scopes ```in_group``` and ```nearby_place_id``` on the Place model, respectively.
 
 **The name of ```PlaceQuery``` is very intentional. The gem derives the name of the ActiveRecord relation from this name so it must folllow the convention above.**
+
 If required and appropriate, we *could* implement a way of specifying the model class.
 
 In our Places Controller, we use this class like so:
@@ -127,7 +128,7 @@ def index
 end
 ```
 
-You can also find single records. Includes will still be taken into consideration:
+You can also find single records:
 
 ```ruby
 def index
@@ -162,9 +163,12 @@ query.total
 
 query.summary
 #=> {
-#     offset: 0, limit: 10,
-#     sort_by: 'name', sort_dir: 'ASC',
-#     count: 10, total: 13
+#     offset: 0, 
+#     limit: 10,
+#     sort_by: 'name', 
+#     sort_dir: 'ASC',
+#     count: 10, 
+#     total: 13
 #   }
 ```
 
