@@ -48,6 +48,8 @@ end
 I'm going to release to rubygems shortly, once I'm certain the interface won't change too much. Right now you
 can add to your Gemfile and reference github.
 
+It's also worth checking out Hooroo's [API toolset gem](https://github.com/hooroo/hooroo-api-tools), which is being developed and used side-by-side with this gem.
+
 ### Need more info? A real-world example
 
 We have a Place (ActiveRecord) model with attributes and scopes to filter on, so we have all of the power of the AR query DSL at our fingertips.
