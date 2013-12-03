@@ -1,5 +1,4 @@
 require "query_ar/version"
-require 'query_ar/scoped_relation'
 require 'active_support/core_ext'
 
 module QueryAr
@@ -17,6 +16,7 @@ module QueryAr
     params = params.symbolize_keys
     params.keep_if { |k,v| v.present? }
     @params = defaults.merge(params)
+    @static_scopes = []
   end
 
   def count
@@ -52,6 +52,13 @@ module QueryAr
 
   def includes(*includes)
     @relation_includes = includes
+    self
+  end
+
+  def with_scopes(*scopes)
+    scopes.each do |scope|
+      @static_scopes << scope
+    end
     self
   end
 
@@ -110,7 +117,7 @@ module QueryAr
 
   private
 
-  attr_reader :params, :relation_includes
+  attr_reader :params, :relation_includes, :static_scopes
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
@@ -126,7 +133,7 @@ module QueryAr
 
   end
 
-  def scopes
+  def conditional_scopes
     create_conditions_from_mappings(self.class._scope_attribute_mappings)
   end
 
@@ -175,7 +182,15 @@ module QueryAr
   end
 
   def scoped_relation
-    ScopedRelation.new(model_class, scopes).scoped
+
+    statically_scoped = static_scopes.inject(model_class.all) do | scope_memo, (scope_name) |
+      scope_memo.send(scope_name)
+    end
+
+    conditional_scopes.inject(statically_scoped) do | scope_memo, (scope_name, arg) |
+      scope_memo.send(scope_name, arg)
+    end
+
   end
 
   def with_includes(relation)

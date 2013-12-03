@@ -151,6 +151,11 @@ end
 The public interface of every query object is as follows:
 
 ```ruby
+
+query.with_scopes(:published) #append no-arg based scopes that are not mapped as query string params
+
+query.includes(:images, :reviews) #Active record relation includes to improve query performance
+
 query.all
 #=> #<ActiveRecord::Relation [Place(id: 157 name: Melbourne Museum)...]>
 

@@ -7,6 +7,7 @@ require 'query_ar'
 class User < ActiveRecord::Face
   scope :younger_than
   scope :older_than
+  scope :static_scope
 end
 
 describe QueryAr do
@@ -155,7 +156,7 @@ describe QueryAr do
 
   end
 
-  describe "includes" do
+  describe "#includes" do
 
     user_query = <<-RUBY
       class UserQuery
@@ -174,6 +175,25 @@ describe QueryAr do
         UserQuery.new.all
         expect(User.messages_received).to_not include(includes: [])
         expect(User.messages_received).to_not include(includes: nil)
+      end
+
+    end
+
+  end
+
+  describe "#with_scopes" do
+
+    user_query = <<-RUBY
+      class UserQuery
+        include QueryAr
+      end
+    RUBY
+
+    describe "adding scopes to the query", query_class: user_query do
+
+      it "calls the scope on the relation" do
+        UserQuery.new.with_scopes(:static_scope).all
+        expect(User.messages_received).to include(static_scope: [])
       end
 
     end
