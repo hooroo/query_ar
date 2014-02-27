@@ -16,7 +16,7 @@ module QueryAr
     params = params.symbolize_keys
     params.keep_if { |k,v| v.present? }
     @params = defaults.merge(params)
-    @static_scopes = []
+    @static_scopes = [ default_scope ]
   end
 
   def count
@@ -150,7 +150,7 @@ module QueryAr
   end
 
   def order
-    [ sort_by, sort_dir].join(' ')
+    [ sort_by, sort_dir ].join(' ')
   end
 
   def sort_by
@@ -183,7 +183,7 @@ module QueryAr
 
   def scoped_relation
 
-    statically_scoped = static_scopes.inject(model_class.all) do | scope_memo, (scope_name) |
+    statically_scoped = static_scopes.inject(model_class) do | scope_memo, (scope_name) |
       scope_memo.send(scope_name)
     end
 
@@ -196,6 +196,10 @@ module QueryAr
   def with_includes(relation)
     return relation unless relation_includes.present?
     relation.includes(*relation_includes)
+  end
+
+  def default_scope
+    ActiveRecord::VERSION::MAJOR < 4 ? :scoped : :all
   end
 
 end

@@ -20,6 +20,13 @@
 require 'active_support/core_ext'
 
 module ActiveRecord
+  module VERSION
+    MAJOR = 4
+    STRING = '4'
+  end
+end
+
+module ActiveRecord
   class Face
 
     class_attribute :messages_received, :expected_messages
