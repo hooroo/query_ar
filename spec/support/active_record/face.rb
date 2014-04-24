@@ -57,7 +57,6 @@ module ActiveRecord
       self.messages_received ||= {}
       calls = self.messages_received[method] ||= []
       calls << args
-      # self.messages_received.merge!(method => args)
       self
     end
 
