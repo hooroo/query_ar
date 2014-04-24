@@ -34,6 +34,7 @@ module ActiveRecord
     self.expected_messages = Set.new([
       :all,
       :where,
+      :distinct,
       :order,
       :limit,
       :offset,
@@ -41,6 +42,10 @@ module ActiveRecord
       :find,
       :find_by
     ])
+
+    def self.pluck(attr)
+      []
+    end
 
     def self.scope(name)
       self.expected_messages << name.to_sym
@@ -50,7 +55,9 @@ module ActiveRecord
       super unless self.expected_messages.include?(method)
 
       self.messages_received ||= {}
-      self.messages_received.merge!(method => args)
+      calls = self.messages_received[method] ||= []
+      calls << args
+      # self.messages_received.merge!(method => args)
       self
     end
 

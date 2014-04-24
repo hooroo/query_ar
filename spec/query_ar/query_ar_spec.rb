@@ -12,6 +12,12 @@ end
 
 describe QueryAr do
 
+  let(:user_ids) { [1] }
+
+  before do
+    allow(User).to receive(:pluck).with(:id).and_return(user_ids)
+  end
+
   describe "Dsl" do
 
     describe ".defaults" do
@@ -26,9 +32,9 @@ describe QueryAr do
 
         it "uses the global defaults" do
           UserQuery.new.all
-          expect(User.messages_received).to include(limit:  [20])
-          expect(User.messages_received).to include(offset: [0])
-          expect(User.messages_received).to include(order:  ['users.id ASC'])
+          expect(User.messages_received[:limit]).to include([20])
+          expect(User.messages_received[:offset]).to include([0])
+          expect(User.messages_received[:order]).to include(['users.id ASC'])
         end
       end
 
@@ -44,9 +50,9 @@ describe QueryAr do
 
         it "uses the provided defaults" do
           UserQuery.new.all
-          expect(User.messages_received).to include(limit:  [5])
-          expect(User.messages_received).to include(offset: [1])
-          expect(User.messages_received).to include(order:  ['users.name DESC'])
+          expect(User.messages_received[:limit]).to include([5])
+          expect(User.messages_received[:offset]).to include([1])
+          expect(User.messages_received[:order]).to include(['users.name DESC'])
         end
 
         context "when the query params specify values" do
@@ -54,9 +60,9 @@ describe QueryAr do
 
           it "uses those ones where available" do
             UserQuery.new(params).all
-            expect(User.messages_received).to include(limit:  [10])
-            expect(User.messages_received).to include(offset: [20])
-            expect(User.messages_received).to include(order:  ['users.name DESC'])
+            expect(User.messages_received[:limit]).to include([10])
+            expect(User.messages_received[:offset]).to include([20])
+            expect(User.messages_received[:order]).to include(['users.name DESC'])
           end
         end
       end
@@ -76,7 +82,8 @@ describe QueryAr do
 
         it "does not query on anything" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(where: [{}])
+          expect(User.messages_received[:where]).to include([{}])
+          expect(User.messages_received[:where]).to include([{ id: user_ids }])
         end
       end
 
@@ -92,8 +99,8 @@ describe QueryAr do
 
         it "queries on the allowed attribute only" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(where: [{'users.name' => 'Stu'}])
-          expect(User.messages_received).to_not include(where: [{'users.role' => 'admin'}])
+          expect(User.messages_received[:where]).to include([{'users.name' => 'Stu'}])
+          expect(User.messages_received[:where]).to_not include([{'users.role' => 'admin'}])
         end
       end
 
@@ -107,9 +114,12 @@ describe QueryAr do
 
       context "when queryable attributes have been aliased", query_class: queryable_by_alias do
 
+        let(:user_ids) { [1] }
+
         it "queries using the aliased attribute" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(where: [{'users.other_name' => 'Stu'}])
+          expect(User.messages_received[:where]).to include([{ 'users.other_name' => 'Stu'}])
+          expect(User.messages_received[:where]).to include([{ id: user_ids }])
         end
       end
 
@@ -128,7 +138,8 @@ describe QueryAr do
 
         it "queries on the aliased scope" do
           UserQuery.new(params).all
-          expect(User.messages_received).to include(older_than: [21])
+          expect(User.messages_received[:older_than]).to include([21])
+          expect(User.messages_received[:where]).to include([{ id: user_ids }])
         end
       end
 
@@ -150,7 +161,7 @@ describe QueryAr do
 
       it "finds by id from params" do
         UserQuery.new(params).find
-        expect(User.messages_received).to include(find: [1])
+        expect(User.messages_received[:find]).to include([1])
       end
     end
 
@@ -168,13 +179,13 @@ describe QueryAr do
 
       it "adds includes to the relation" do
         UserQuery.new.includes(:a, :b).all
-        expect(User.messages_received).to include(includes: [:a, :b])
+        expect(User.messages_received[:includes]).to include([:a, :b])
       end
 
       it "doesn't add includes to the relation if none provided" do
         UserQuery.new.all
-        expect(User.messages_received).to_not include(includes: [])
-        expect(User.messages_received).to_not include(includes: nil)
+        expect(User.messages_received[:includes]).to be_nil
+        # expect(User.messages_received[:includes]).to_not include(nil)
       end
 
     end
@@ -193,7 +204,7 @@ describe QueryAr do
 
       it "calls the scope on the relation" do
         UserQuery.new.with_scopes(:static_scope).all
-        expect(User.messages_received).to include(static_scope: [])
+        expect(User.messages_received[:static_scope]).to include([])
       end
 
     end

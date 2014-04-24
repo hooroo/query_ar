@@ -28,11 +28,17 @@ module QueryAr
   end
 
   def all
-     with_includes(scoped_relation)
-      .where(where_conditions)
-      .order(order)
+    #Broken query into two parts to avoid clashes in joins / includes causing incorrect results / duplicates
+
+    all_ids = scoped_relation.where(where_conditions)
       .limit(limit)
       .offset(offset)
+      .pluck(:id)
+
+    with_includes(model_class)
+      .distinct
+      .where(id: all_ids)
+      .order(order)
   end
 
   def find(id_param = :id)

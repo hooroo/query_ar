@@ -14,11 +14,11 @@ describe ActiveRecord::Face do
     FakeModel.active.where(name: 'stu').order('name').limit(10).offset(0)
     messages = FakeModel.messages_received
     expect(messages.keys.length).to eq 5
-    expect(messages).to include(active: [])
-    expect(messages).to include(where:  [{name: 'stu'}])
-    expect(messages).to include(order:  ['name'])
-    expect(messages).to include(limit:  [10])
-    expect(messages).to include(offset: [0])
+    expect(messages[:active]).to include([])
+    expect(messages[:where]).to include([{name: 'stu'}])
+    expect(messages[:order]).to include(['name'])
+    expect(messages[:limit]).to include([10])
+    expect(messages[:offset]).to include([0])
   end
 
 end
