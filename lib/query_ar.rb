@@ -31,6 +31,7 @@ module QueryAr
     #Broken query into two parts to avoid clashes in joins / includes causing incorrect results / duplicates
 
     all_ids = scoped_relation.where(where_conditions)
+      .order(order)
       .limit(limit)
       .offset(offset)
       .pluck(:id)
@@ -38,7 +39,7 @@ module QueryAr
     with_includes(model_class)
       .distinct
       .where(id: all_ids)
-      .order(order)
+
   end
 
   def find(id_param = :id)
