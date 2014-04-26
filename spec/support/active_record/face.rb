@@ -40,7 +40,8 @@ module ActiveRecord
       :offset,
       :includes,
       :find,
-      :find_by
+      :find_by,
+      :group
     ])
 
     def self.pluck(attr)

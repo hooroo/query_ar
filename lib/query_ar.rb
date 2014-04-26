@@ -20,7 +20,7 @@ module QueryAr
   end
 
   def count
-    all.count
+    all_ids.size
   end
 
   def total
@@ -29,17 +29,7 @@ module QueryAr
 
   def all
     #Broken query into two parts to avoid clashes in joins / includes causing incorrect results / duplicates
-
-    all_ids = scoped_relation.where(where_conditions)
-      .order(order)
-      .limit(limit)
-      .offset(offset)
-      .pluck(:id)
-
-    with_includes(model_class)
-      .distinct
-      .where(id: all_ids)
-
+    with_includes(model_class).where(id: all_ids)
   end
 
   def find(id_param = :id)
@@ -128,6 +118,15 @@ module QueryAr
 
   def defaults
     GLOBAL_DEFAULTS.merge(self.class._defaults)
+  end
+
+  def all_ids
+    @all_ids ||= scoped_relation.where(where_conditions)
+      .group("#{base_table_name}.id")
+      .order(order)
+      .limit(limit)
+      .offset(offset)
+      .pluck(:id)
   end
 
   def where_conditions
