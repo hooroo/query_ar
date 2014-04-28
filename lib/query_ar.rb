@@ -20,16 +20,16 @@ module QueryAr
   end
 
   def count
-    all_ids.size
+    @count ||= all_ids.size
   end
 
   def total
-    scoped_relation.where(where_conditions).count
+    @total ||= scoped_relation.where(where_conditions).count
   end
 
   def all
     #Broken query into two parts to avoid clashes in joins / includes causing incorrect results / duplicates
-    with_includes(model_class).where(id: all_ids)
+    @all ||= with_includes(model_class).where(id: all_ids)
   end
 
   def find(id_param = :id)
@@ -37,7 +37,7 @@ module QueryAr
   end
 
   def summary
-    {
+    @summary ||= {
       offset: offset,
       limit: limit,
       sort_by: sort_by.gsub("#{base_table_name}.", ""),
