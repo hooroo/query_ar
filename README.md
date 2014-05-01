@@ -170,11 +170,11 @@ query.total
 
 query.summary
 #=> {
-#     offset: 0, 
+#     offset: 0,
 #     limit: 10,
-#     sort_by: 'name', 
+#     sort_by: 'name',
 #     sort_dir: 'ASC',
-#     count: 10, 
+#     count: 10,
 #     total: 13
 #   }
 ```
@@ -200,6 +200,10 @@ Declares what attributes can be queried in the ActiveRecord ```where``` clause. 
 If you have any comments or questions, please feel free to get in touch.
 
 Of course, Pull Requests are very welcome. If you have any doubts about the appropriateness of a particular feature you want to add, please don't hesitate to create a GitHub issue and we can discuss.
+
+
+## Continuous Integration
+Currently running on Travis CI - https://travis-ci.org/hooroo/query_ar
 
 ## TODO:
 
