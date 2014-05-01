@@ -202,9 +202,6 @@ If you have any comments or questions, please feel free to get in touch.
 Of course, Pull Requests are very welcome. If you have any doubts about the appropriateness of a particular feature you want to add, please don't hesitate to create a GitHub issue and we can discuss.
 
 
-## Continuous Integration
-Currently running on Travis CI - https://travis-ci.org/hooroo/query_ar
-
 ## TODO:
 
 * Make global defaults configurable in code (initialiser/yaml)
