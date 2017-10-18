@@ -39,6 +39,7 @@ module ActiveRecord
       :limit,
       :offset,
       :includes,
+      :references,
       :find,
       :find_by,
       :group

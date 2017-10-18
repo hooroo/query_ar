@@ -7,7 +7,7 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     # Allow a class definition for the UserQuery
     # to be passed into the example group.
-    if definition = example.class.metadata[:query_class]
+    if definition = example.metadata[:query_class]
       create_query_class(definition)
     end
     #TODO - Remove hardcoding of User related stuff.
@@ -15,7 +15,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do |example|
-    remove_query_class if example.class.metadata[:query_class]
+    remove_query_class if example.metadata[:query_class]
   end
 end
 
