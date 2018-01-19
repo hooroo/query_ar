@@ -29,7 +29,7 @@ module QueryAr
 
   def all
     #Broken query into two parts to avoid clashes in joins / includes causing incorrect results / duplicates
-    @all ||= with_includes(model_class).where(id: all_ids).order(order)
+    @all ||= with_includes(model_class).where(id: all_ids)
   end
 
   def find(id_param = :id)
@@ -122,12 +122,11 @@ module QueryAr
 
   def all_ids
     @all_ids ||= scoped_relation.where(where_conditions)
+      .group("#{base_table_name}.id")
       .order(order)
       .limit(limit)
       .offset(offset)
       .pluck(:id)
-      .to_a
-      .uniq
   end
 
   def where_conditions
@@ -200,21 +199,9 @@ module QueryAr
 
   end
 
-  def relation_references
-    return [] unless relation_includes.present?
-
-    relation_includes.map do |include_item|
-      if include_item.is_a? Hash
-        include_item.keys
-      else
-        include_item
-      end
-    end.flatten.map(&:to_s).map(&:pluralize).map(&:to_sym)
-  end
-
   def with_includes(relation)
     return relation unless relation_includes.present?
-    relation.includes(*relation_includes).references(*relation_references)
+    relation.includes(*relation_includes)
   end
 
   def default_scope
