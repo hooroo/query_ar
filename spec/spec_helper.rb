@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+require 'active_support'
 require 'support/active_record/face'
 
 RSpec.configure do |config|
